@@ -8,9 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 PyAudio = "^0.2.14"
-openai = "^1.48.0"
 Wave = "^0.0.2"
-whisper = "^1.1.10"
+vosk = "^0.3.45"
 
 
 [build-system]
