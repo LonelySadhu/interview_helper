@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+</head>
+<body>
+    <h1>Ответ от OpenAI</h1>
+    <textarea id="output" rows="20" cols="100"></textarea>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8000/ws");
+
+        ws.onmessage = function(event) {
+            const textarea = document.getElementById("output");
+            textarea.value += event.data + "\n";
+        };
+
+        ws.onclose = function(event) {
+            console.log("WebSocket закрыт.");
+        };
+
+        ws.onerror = function(error) {
+            console.error("Ошибка WebSocket:", error);
+        };
+    </script>
+</body>
+</html>
