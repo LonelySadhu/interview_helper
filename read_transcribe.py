@@ -14,7 +14,7 @@ if __name__ == '__main__':
     for file in audio_files:
         transcriber.write_transcription_to_file(os.path.join(audio_files_path, file), 
                                                 os.path.join(output_file_path,
-                                                               f'output_{file.split(".")[0]}.txt')) 
+                                                               f'{file.split(".")[0]}.txt')) 
     while True:
         sleep(5)  
         new_audio_files = sorted([f for f in os.listdir(audio_files_path) if f.endswith('.wav')])
@@ -23,6 +23,8 @@ if __name__ == '__main__':
                 if file not in audio_files:
                     transcriber.write_transcription_to_file(os.path.join(audio_files_path, file),
                                                  os.path.join(output_file_path,
-                                                               f'output_{file.split(".")[0]}.txt'))
+                                                               f'{file.split(".")[0]}.txt'))
                 audio_files = new_audio_files
+        else:
+            print("Waiting new audio files...\n")
                     
