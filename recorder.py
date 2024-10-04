@@ -6,7 +6,7 @@ FORMAT = pyaudio.paInt16  # Формат аудио
 CHANNELS = 1               # Количество каналов (1 - моно, 2 - стерео)
 RATE = 44100               # Частота дискретизации
 CHUNK = 1024               # Размер блока
-RECORD_SECONDS = 60      # Время записи в секундах
+RECORD_SECONDS = 30      # Время записи в секундах
 WAVE_OUTPUT_FILENAME = "recorders/output.wav"  # Имя выходного файла
 
 if __name__ == "__main__":

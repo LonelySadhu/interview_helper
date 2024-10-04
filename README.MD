@@ -1,3 +1,5 @@
+download vosk model:
+https://alphacephei.com/vosk/models
 Watchdog:
 Класс NewFileHandler отслеживает создание новых текстовых файлов в заданной папке. Когда появляется новый файл, его содержимое передаётся в OpenAI для обработки, а ответ стримится по WebSocket обратно к клиенту.
 OpenAI API:
