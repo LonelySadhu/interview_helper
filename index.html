@@ -4,9 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Chat</title>
+    <style>
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            color: #d63384;
+        }
+    </style>
 </head>
 <body>
-    <h1>Ответ от OpenAI</h1>
+    <h1>РЎhat with OpenAI</h1>
+    <label for="output">Chat Output:</label>
     <textarea id="output" rows="20" cols="100"></textarea>
 
     <script>
@@ -18,11 +31,11 @@
         };
 
         ws.onclose = function(event) {
-            console.log("WebSocket закрыт.");
+            console.log("WebSocket closed.");
         };
 
         ws.onerror = function(error) {
-            console.error("Ошибка WebSocket:", error);
+            console.error("Error WebSocket:", error);
         };
     </script>
 </body>

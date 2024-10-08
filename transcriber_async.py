@@ -51,7 +51,7 @@ class Transcriber:
                                          output_file_path):
         base_name = os.path.splitext(os.path.basename(audio_file_path))[0]
         output_file_path = f'{output_file_path}\{base_name}.txt'
-        with open(output_file_path, "w") as f:
+        with open(output_file_path, "w", encoding="utf-8") as f:
             for res in transcription:
                 if 'text' in res:
                     f.write(res['text'] + "\n")
