@@ -38,6 +38,7 @@ manager = WebSocketManager()
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
+        await manager.send_message("Привет! Я твой ассистент по прохождению собеседований.")
         while True:
             data = await websocket.receive_text()
             
@@ -76,11 +77,6 @@ def create_thread_and_run(user_input):
     run = submit_message(assistant_id, thread, user_input)
     return thread, run
 
-def pretty_print(messages):
-    print("# Messages")
-    for m in messages:
-        print(f"{m.role}: {m.content[0].text.value}")
-    print()
 
 def wait_on_run(run, thread):
     while run.status == "queued" or run.status == "in_progress":
@@ -93,13 +89,20 @@ def wait_on_run(run, thread):
 
 def format_response(messages):
     # Форматируем текстовый ответ для отправки через WebSocket
-    response_text = "\n".join([f"{m.role}: {m.content[0].text.value}" for m in messages])
-    return response_text
+    # Фильтруем только сообщения ассистента
+    assistant_messages = [
+        msg.content[0].text.value for msg in messages if msg.role == "assistant"
+    ]
+
+    # Объединяем сообщения ассистента в один ответ
+    assistant_response = "\n".join(assistant_messages)
+    return assistant_response
 
 # Класс для отслеживания появления новых файлов
-class NewFileHandler(FileSystemEventHandler):
-    def __init__(self, folder_path: str):
+class TextFileHandler(FileSystemEventHandler):
+    def __init__(self, folder_path: str, websocket_manager: WebSocketManager):
         self.folder_path = folder_path
+        self.websocket_manager = websocket_manager  # Добавляем менеджер WebSocket
 
     def on_created(self, event):
         if not event.is_directory and event.src_path.endswith(".txt"):
@@ -123,9 +126,13 @@ class NewFileHandler(FileSystemEventHandler):
             # Логируем или обрабатываем ответ ассистента
             print("Ответ ассистента:", assistant_response)
 
+            # Отправляем ответ ассистента клиентам WebSocket
+            await self.websocket_manager.send_message(assistant_response)
+
+
 # Функция для запуска наблюдателя за папкой
-def start_watching(folder_path: str):
-    event_handler = NewFileHandler(folder_path)
+def start_watching(folder_path: str, manager: WebSocketManager):
+    event_handler = TextFileHandler(folder_path, manager)
     observer = Observer()
     observer.schedule(event_handler, folder_path, recursive=False)
     observer.start()
@@ -136,7 +143,12 @@ if __name__ == "__main__":
     folder_to_watch = "./transcriptions"  # Папка для отслеживания
     os.makedirs(folder_to_watch, exist_ok=True)
 
-    observer = start_watching(folder_to_watch)
+     # Создаем WebSocketManager
+    manager = WebSocketManager()
+
+    # Запускаем наблюдение за файлами и передаем менеджер WebSocket
+    observer = start_watching(folder_to_watch, manager)
+
 
     try:
         import uvicorn

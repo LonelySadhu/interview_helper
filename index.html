@@ -3,40 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Chat</title>
+    <title>Assistant Response</title>
+
+    <!-- Подключение Prism.js для подсветки кода -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-python.min.js"></script>
+
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .response {
+            margin: 10px 0;
+        }
         pre {
             background-color: #f5f5f5;
             padding: 10px;
             border-radius: 5px;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* Сохраняет форматирование текста */
         }
         code {
-            font-family: 'Courier New', Courier, monospace;
-            color: #d63384;
+            font-family: Consolas, "Courier New", monospace;
         }
     </style>
 </head>
 <body>
-    <h1>Сhat with OpenAI</h1>
-    <label for="output">Chat Output:</label>
-    <textarea id="output" rows="20" cols="100"></textarea>
+
+    <h1>Assistant Response</h1>
+
+    <div id="response-container" class="response"></div>
 
     <script>
-        const ws = new WebSocket("ws://localhost:8000/ws");
+        const socket = new WebSocket("ws://localhost:8000/ws");
+        const responseContainer = document.getElementById('response-container');
 
-        ws.onmessage = function(event) {
-            const textarea = document.getElementById("output");
-            textarea.value += event.data + "\n";
+        socket.onopen = function(event) {
+            console.log("Соединение установлено");
+            socket.send("Привет, ассистент!");  // Пример отправки данных ассистенту
         };
 
-        ws.onclose = function(event) {
-            console.log("WebSocket closed.");
+        socket.onmessage = function(event) {
+            // Добавляем полученное сообщение в контейнер
+            const message = event.data;
+            responseContainer.innerHTML += message;
+
+            // Обновляем подсветку кода после получения нового сообщения
+            Prism.highlightAll();
         };
 
-        ws.onerror = function(error) {
-            console.error("Error WebSocket:", error);
+        socket.onclose = function(event) {
+            console.log("Соединение закрыто:", event);
+        };
+
+        socket.onerror = function(error) {
+            console.error("Ошибка WebSocket:", error);
         };
     </script>
+
 </body>
 </html>

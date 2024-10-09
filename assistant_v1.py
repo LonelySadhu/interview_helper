@@ -6,7 +6,7 @@ api_key = "sk-NLehN06vh8OrgGzDdA_5VGJ8pQQYNAcQ7Y-fYDXzWOT3BlbkFJcpJtnXcG1LsZd2Ou
 assistant_id = "asst_omGvcxwgcDJoCo81Q8E4a6AK"
 
 
-user_input = "Привет! Можешь рассказать о своем функционале?"
+user_input = "Привет! Почему ты не выделил код html тегами как тебя просят в инструкциях?"
 
 client = OpenAI(api_key=api_key)
 
