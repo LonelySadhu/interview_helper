@@ -1,6 +1,6 @@
 model/
 recorders/
-transcribers/
+transcriptions/
 __pycache__/
 .venv/
 .vscode/
