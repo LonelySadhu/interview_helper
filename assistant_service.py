@@ -5,31 +5,19 @@ import time
 from fastapi import FastAPI, WebSocket
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from ws_manager import WebSocketManager
+from logger import logger
+from settings import settings
 
 # Конфигурация API ключа OpenAI
-openai.api_key = "sk-NLehN06vh8OrgGzDdA_5VGJ8pQQYNAcQ7Y-fYDXzWOT3BlbkFJcpJtnXcG1LsZd2Ou-3uDVPSz5xbuGkzc_A0_Z4iqAA"
-assistant_id = "asst_omGvcxwgcDJoCo81Q8E4a6AK"
+openai.api_key = settings.api_key
+assistant_id = settings.assistant_id
 
 client = openai.OpenAI(api_key=openai.api_key)
 
 # Инициализация FastAPI приложения
 app = FastAPI()
 
-# WebSocket обработчик для общения с клиентом
-class WebSocketManager:
-    def __init__(self):
-        self.active_connections: list[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def send_message(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
 
 # Инициализация менеджера WebSocket
 manager = WebSocketManager()
@@ -38,7 +26,6 @@ manager = WebSocketManager()
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
-        await manager.send_message("Привет! Я твой ассистент по прохождению собеседований.")
         while True:
             data = await websocket.receive_text()
             
@@ -48,7 +35,7 @@ async def websocket_endpoint(websocket: WebSocket):
             # Отправляем ответ клиенту
             await manager.send_message(assistant_response)
     except Exception as e:
-        print(f"Ошибка: {e}")
+        logger.error(f"Ошибка: {e}")
     finally:
         manager.disconnect(websocket)
 
@@ -106,7 +93,7 @@ class TextFileHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         if not event.is_directory and event.src_path.endswith(".txt"):
-            print(f"Новый файл обнаружен: {event.src_path}")
+            logger.info(f"Новый файл обнаружен: {event.src_path}")
             
             # Создаем новый цикл событий для текущего потока
             loop = asyncio.new_event_loop()
@@ -124,7 +111,7 @@ class TextFileHandler(FileSystemEventHandler):
             assistant_response = await get_assistant_response(file_content)
 
             # Логируем или обрабатываем ответ ассистента
-            print("Ответ ассистента:", assistant_response)
+            logger.info("Ответ ассистента:", assistant_response)
 
             # Отправляем ответ ассистента клиентам WebSocket
             await self.websocket_manager.send_message(assistant_response)
@@ -139,20 +126,21 @@ def start_watching(folder_path: str, manager: WebSocketManager):
     return observer
 
 # Запуск FastAPI и отслеживание изменений в папке
-if __name__ == "__main__":
-    folder_to_watch = "./transcriptions"  # Папка для отслеживания
-    os.makedirs(folder_to_watch, exist_ok=True)
 
-     # Создаем WebSocketManager
-    manager = WebSocketManager()
+folder_to_watch = "./transcriptions"  # Папка для отслеживания
+os.makedirs(folder_to_watch, exist_ok=True)
 
-    # Запускаем наблюдение за файлами и передаем менеджер WebSocket
-    observer = start_watching(folder_to_watch, manager)
+# Создаем WebSocketManager
+manager = WebSocketManager()
+
+# Запускаем наблюдение за файлами и передаем менеджер WebSocket
+observer = start_watching(folder_to_watch, manager)
 
 
-    try:
-        import uvicorn
-        uvicorn.run(app, host="0.0.0.0", port=8000)
-    finally:
-        observer.stop()
-        observer.join()
+try:
+    import uvicorn
+    logger.info("Uvicorn starting...")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+finally:
+    observer.stop()
+    observer.join()

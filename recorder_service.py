@@ -1,5 +1,6 @@
 import pyaudio
 import wave
+from logger import logger
 
 # Параметры записи
 FORMAT = pyaudio.paInt16  # Формат аудио
@@ -9,11 +10,11 @@ CHUNK = 1024               # Размер блока
 RECORD_SECONDS = 30      # Время записи в секундах
 WAVE_OUTPUT_FILENAME = "recorders/output.wav"  # Имя выходного файла
 
-if __name__ == "__main__":
+def record_audio():
     cycle = 1
     try:
         while True:
-            print(f"Запись {cycle}...")
+            logger.info(f"Запись {cycle}...")
         # Инициализация PyAudio
             audio = pyaudio.PyAudio()
 
@@ -34,7 +35,7 @@ if __name__ == "__main__":
                 data = stream.read(CHUNK)
                 frames.append(data)
 
-            print(f"Запись {cycle} завершена.")
+            logger.info(f"Запись {cycle} завершена.")
 
             # Остановка записи
             stream.stop_stream()
@@ -49,7 +50,7 @@ if __name__ == "__main__":
                 wf.setframerate(RATE)
                 wf.writeframes(b''.join(frames))
 
-            print(f"Файл сохранен как {filename}")
+            logger.info(f"Файл сохранен как {filename}")
             cycle += 1
     except KeyboardInterrupt:
         stream.stop_stream()
@@ -63,5 +64,7 @@ if __name__ == "__main__":
             wf.setframerate(RATE)
             wf.writeframes(b''.join(frames))
 
-        print(f"Файл сохранен как {filename}")
-        print("Цикл прерван пользователем.")
+        logger.info(f"Файл сохранен как {filename}")
+        logger.info("Цикл прерван пользователем.")
+
+record_audio()

@@ -32,7 +32,16 @@ class Transcriber:
         return result
 
     def write_transcription_to_file(self, audio_file_path, output_file_path):
-        with open(output_file_path, "w") as f:
-            for res in self.transcribe_audio(audio_file_path):
-                if 'text' in res:  # Убедимся, что результат содержит текст
-                    f.write(res['text'] + "\n")
+        # Транскрибируем аудиофайл
+        transcription_result = self.transcribe_audio(audio_file_path)
+
+        # Фильтруем результаты, которые содержат текст
+        text_results = [res['text'] for res in transcription_result if 'text' in res and res['text'].strip()]
+
+        # Если нет текста, файл не создается
+        if text_results:
+            with open(output_file_path, "w") as f:
+                for text in text_results:
+                    f.write(text + "\n")
+        else:
+            print("Транскрипция не содержит текста. Файл не будет создан.")

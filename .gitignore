@@ -4,3 +4,4 @@ transcribers/
 __pycache__/
 .venv/
 .vscode/
+.env
