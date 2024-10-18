@@ -29,7 +29,7 @@ threading.Thread(target=log_error, args=(p1, logger.error)).start()
 time.sleep(120)
 logger.info("Модель загружена, запускаем сервисы...")
 
-assistant = "poetry run python assistant_service_v2.py"
+assistant = "poetry run python assistant_service.py"
 fastapi = "poetry run python fastapi_service.py"
 audio_service = "poetry run python recorder_service.py"
 p2 = run_program(fastapi)
