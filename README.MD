@@ -1,4 +1,3 @@
-```markdown
 # Interview Helper
 
 This project aims to create an AI assistant for real-time interviews  using Python,  
