@@ -18,7 +18,7 @@ class Transcriber:
         wf = wave.open(audio_file_path, "rb")
 
         if wf.getnchannels() != 1:
-            raise ValueError("Аудиофайл должен быть моно!")
+            raise ValueError("The audio file must be mono!")
         rec = KaldiRecognizer(self.model, wf.getframerate())
         rec.SetWords(True)
 
@@ -52,7 +52,7 @@ class Transcriber:
         base_name = os.path.splitext(os.path.basename(audio_file_path))[0]
         output_file_path = f'{output_file_path}\{base_name}.txt'
     
-        # Фильтруем результаты, которые содержат текст
+        # Filter the results that contain text
         text_results = [res['text'] for res in transcription if 'text' in res and res['text'].strip()]
         if text_results:
             with open(output_file_path, "w", encoding="utf-8") as f:

@@ -5,7 +5,7 @@ from watchdog.events import FileSystemEventHandler
 from transcriber_async import Transcriber
 from logger import logger
 
-# Класс для отслеживания появления новых файлов
+# A class for tracking the appearance of new files
 class AudioFileHandler(FileSystemEventHandler):
     def __init__(self, folder_path: str, folder_output: str, loop):
         self.folder_path = folder_path
@@ -15,7 +15,7 @@ class AudioFileHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         if not event.is_directory and event.src_path.endswith(".wav"):
-            logger.info(f"Новый файл обнаружен: {event.src_path}")
+            logger.info(f"New file detected: {event.src_path}")
             asyncio.run_coroutine_threadsafe(self.transcriber.write_transcription_to_file(event.src_path,
                                                                           self.folder_output),
                                                                           self.loop)
@@ -30,8 +30,8 @@ def start_watching(folder_path: str, folder_output: str, loop):
     return observer
 
 async def main():
-    folder_to_watch = "./recorders"  # Папка для отслеживания
-    folder_output = "./transcriptions"  # Папка для сохранения text"
+    folder_to_watch = "./recorders"  # Tracking folder
+    folder_output = "./transcriptions"  # Folder for saving text”
     os.makedirs(folder_to_watch, exist_ok=True)
     os.makedirs(folder_output, exist_ok=True)
 

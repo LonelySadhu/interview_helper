@@ -2,7 +2,8 @@
 
 This project aims to create an AI assistant for real-time interviews  using Python,  
 OpenAI, and WebSockets. It integrates the Vosk speech-to-text model,  
-Watchdog for file monitoring, and FastAPI for interacting with WebSocket.
+Watchdog for file monitoring, and FastAPI for interacting with WebSocket. The project  
+made in fast and simple way and open to improvement.
 
 ## Installation
 1. Clone the repository:

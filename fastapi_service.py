@@ -5,7 +5,7 @@ from logger import logger
 
 app = FastAPI()
 
-# Инициализация менеджера WebSocket
+# Initialization of WebSocket manager
 manager = WebSocketManager()
 
 @app.websocket("/ws")
@@ -13,20 +13,20 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            await asyncio.sleep(2)  # Простое ожидание для поддержания соединения
+            await asyncio.sleep(2)  # waiting to maintain the connection
     except Exception as e:
-        logger.error(f"Ошибка WebSocket: {e}")
+        logger.error(f"Error WebSocket: {e}")
     finally:
         await manager.disconnect(websocket)
 
 @app.post("/send_response")
 async def send_response(request: Request):
-    # Получаем ответ ассистента из POST-запроса
+    # Getting the assistant's response from a POST request
     data = await request.json()
     assistant_response = data.get("response")
-    logger.info(f"Получен ответ ассистента: {assistant_response}")
+    logger.info(f"Assistant response received: {assistant_response}")
 
-    # Отправляем ответ через WebSocket всем подключённым клиентам
+    # Send a response via WebSocket to all connected clients
     await manager.broadcast(assistant_response)
 
 import uvicorn

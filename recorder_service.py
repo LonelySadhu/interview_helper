@@ -2,69 +2,64 @@ import pyaudio
 import wave
 from logger import logger
 
-# Параметры записи
-FORMAT = pyaudio.paInt16  # Формат аудио
-CHANNELS = 1               # Количество каналов (1 - моно, 2 - стерео)
-RATE = 44100               # Частота дискретизации
-CHUNK = 1024               # Размер блока
-RECORD_SECONDS = 30      # Время записи в секундах
-WAVE_OUTPUT_FILENAME = "recorders/output.wav"  # Имя выходного файла
+# Recording parameters
+FORMAT = pyaudio.paInt16  # Audio format
+CHANNELS = 1               # Number of channels (1 - mono, 2 - stereo)
+RATE = 44100               # Sampling frequency
+CHUNK = 1024               # Block size
+RECORD_SECONDS = 30      # Recording time in seconds
+WAVE_OUTPUT_FILENAME = "recorders/output.wav"  # Output file name
 
 def record_audio():
     cycle = 1
     try:
         while True:
-            logger.info(f"Запись {cycle}...")
-        # Инициализация PyAudio
+            logger.info(f"Recording {cycle}...")
+     
             audio = pyaudio.PyAudio()
 
-            # Открытие потока для записи
             stream = audio.open(format=FORMAT,
                                 channels=CHANNELS,
                                 rate=RATE,
                                 input=True,
                                 frames_per_buffer=CHUNK)
-
-            
-
+     
             frames = []
-
-            # Запись аудио
 
             for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
                 data = stream.read(CHUNK)
                 frames.append(data)
 
-            logger.info(f"Запись {cycle} завершена.")
+            logger.info(f"Recording {cycle} completed.")
 
-            # Остановка записи
+
             stream.stop_stream()
             stream.close()
             audio.terminate()
             
             filename = WAVE_OUTPUT_FILENAME.split('.')[0] + f"_{cycle}.wav"
-            # Сохранение записанного аудио в WAV-файл
+            # Saving recorded audio to a WAV file
             with wave.open(filename, 'wb') as wf:
                 wf.setnchannels(CHANNELS)
                 wf.setsampwidth(audio.get_sample_size(FORMAT))
                 wf.setframerate(RATE)
                 wf.writeframes(b''.join(frames))
 
-            logger.info(f"Файл сохранен как {filename}")
+            logger.info(f"File save as {filename}")
             cycle += 1
     except KeyboardInterrupt:
         stream.stop_stream()
         stream.close()
         audio.terminate()
         filename = WAVE_OUTPUT_FILENAME.split('.')[0] + f"_{cycle}.wav"
-        # Сохранение записанного аудио в WAV-файл
+       
         with wave.open(filename, 'wb') as wf:
             wf.setnchannels(CHANNELS)
             wf.setsampwidth(audio.get_sample_size(FORMAT))
             wf.setframerate(RATE)
             wf.writeframes(b''.join(frames))
 
-        logger.info(f"Файл сохранен как {filename}")
-        logger.info("Цикл прерван пользователем.")
+        logger.info(f"File save as {filename}")
+        logger.info("User interrupted recording!")
 
 record_audio()

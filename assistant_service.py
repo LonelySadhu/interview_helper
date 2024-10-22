@@ -7,21 +7,21 @@ from pathlib import Path
 from logger import logger
 from settings import settings
 
-# Конфигурация API ключа OpenAI
+# OpenAI Key API
 openai.api_key = settings.api_key
 assistant_id = settings.assistant_id
 
 client = openai.OpenAI(api_key=openai.api_key)
 
-# Путь к директории для отслеживания
+# Path to the directory for tracking
 folder_to_watch = "./transcriptions"
 os.makedirs(folder_to_watch, exist_ok=True)
 
-# URL FastAPI сервиса для отправки данных
+#  FastAPI service URL for sending data
 FASTAPI_URL = "http://localhost:8000/send_response"
 
 async def check_for_new_files(folder_path: str):
-    processed_files = set()  # Набор для хранения уже обработанных файлов
+    processed_files = set()  # Set for storing already processed files
     folder = Path(folder_path)
     
     while True:
@@ -29,7 +29,7 @@ async def check_for_new_files(folder_path: str):
         new_files = txt_files - processed_files
         
         for file_path in new_files:
-            logger.info(f"Новый файл обнаружен: {file_path}")
+            logger.info(f"New file detected: {file_path}")
             await process_new_file(file_path)
             processed_files.add(file_path)
         
@@ -39,25 +39,24 @@ async def process_new_file(file_path: Path):
     with open(file_path, "r", encoding="utf-8") as f:
         file_content = f.read()
         assistant_response = await get_assistant_response(file_content)
-        logger.info(f"Ответ ассистента: {assistant_response}")
+        logger.info(f"Assistant response: {assistant_response}")
 
-        # Отправляем ответ ассистента на FastAPI сервис через HTTP-запрос
+        # Send the assistant's response to the FastAPI service via HTTP request
         data = {"response": assistant_response}
         try:
             response = requests.post(FASTAPI_URL, json=data)
             response.raise_for_status()
-            logger.info(f"Данные успешно отправлены в FastAPI: {response.status_code}")
+            logger.info(f"Data successfully sent to FastAPI: {response.status_code}")
         except requests.exceptions.RequestException as e:
-            logger.error(f"Ошибка при отправке данных: {e}")
+            logger.error(f"Error when sending data: {e}")
 
-# Асинхронная функция для отправки запроса ассистенту и получения ответа
+# Asynchronous function for sending a request to the assistant and receiving a response
 async def get_assistant_response(user_input: str) -> str:
-    thread, run = create_thread_and_run(user_input)  # убрали await, если это синхронные методы
-    run = wait_on_run(run, thread)  # убрали await
-    response = get_response(thread)  # убрали await
+    thread, run = create_thread_and_run(user_input)  
+    run = wait_on_run(run, thread)  
+    response = get_response(thread)  
     return format_response(response)
 
-# Вспомогательные функции для взаимодействия с OpenAI
 def submit_message(assistant_id, thread, user_message):
     client.beta.threads.messages.create(
         thread_id=thread.id, role="user", content=user_message
@@ -71,8 +70,8 @@ def get_response(thread):
     return client.beta.threads.messages.list(thread_id=thread.id, order="asc")
 
 def create_thread_and_run(user_input):
-    thread = client.beta.threads.create()  # синхронный вызов
-    run = submit_message(assistant_id, thread, user_input)  # синхронный вызов
+    thread = client.beta.threads.create()  
+    run = submit_message(assistant_id, thread, user_input)  
     return thread, run
 
 def wait_on_run(run, thread):
@@ -81,7 +80,7 @@ def wait_on_run(run, thread):
             thread_id=thread.id,
             run_id=run.id,
         )
-        time.sleep(0.5)  # синхронный вызов
+        time.sleep(0.5)  
     return run
 
 def format_response(messages):

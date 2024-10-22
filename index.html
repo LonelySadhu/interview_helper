@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant Response</title>
+    <title>AI assistant response</title>
 
-    <!-- Подключение Prism.js для подсветки кода -->
+    <!-- Connecting Prism.js for code highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-python.min.js"></script>
@@ -119,24 +119,24 @@
         const responseContainer = document.getElementById('response-container');
 
         socket.onopen = function(event) {
-            console.log("Соединение установлено");
+            console.log("Connection established");
         };
 
         socket.onmessage = function(event) {
-            // Добавляем полученное сообщение в контейнер
+            // Add the received message to the container
             const message = event.data;
             responseContainer.innerHTML += message;
 
-            // Обновляем подсветку кода после получения нового сообщения
+            // Update code highlighting after receiving a new message
             Prism.highlightAll();
         };
 
         socket.onclose = function(event) {
-            console.log("Соединение закрыто:", event);
+            console.log("Connection closed:", event);
         };
 
         socket.onerror = function(error) {
-            console.error("Ошибка WebSocket:", error);
+            console.error("Error WebSocket:", error);
         };
     </script>
 

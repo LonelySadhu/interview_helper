@@ -1,6 +1,6 @@
 from fastapi import WebSocket
 
-# WebSocket обработчик для общения с клиентом
+# WebSocket handler for communicating with the client
 class WebSocketManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []

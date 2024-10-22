@@ -10,23 +10,23 @@ def run_program(command):
 
 def log_output(process, log_func):
     for line in iter(process.stdout.readline, b''):
-        log_func(line.decode('utf-8', errors='replace').strip())  # Обрабатываем ошибку декодирования
+        log_func(line.decode('utf-8', errors='replace').strip())  # Handling decoding error
     process.stdout.close()
 
 def log_error(process, log_func):
     for line in iter(process.stderr.readline, b''):
-        log_func(line.decode('utf-8', errors='replace').strip())  # Обрабатываем ошибку декодирования
+        log_func(line.decode('utf-8', errors='replace').strip())  # Handling decoding error
     process.stderr.close()
 
 transcribe_model = "poetry run python transcriber_service.py"
 logger.info("Model loading...")
 p1 = run_program(transcribe_model)
 
-# Запуск потоков для логирования вывода
+# Starting threads for output logging
 threading.Thread(target=log_output, args=(p1, logger.info)).start()
 threading.Thread(target=log_error, args=(p1, logger.error)).start()
 
-# Ожидание 2 минуты для загрузки модели
+# Waiting 2 minutes to load the model
 time.sleep(120)
 logger.info("Model loaded, services running...")
 
@@ -50,19 +50,19 @@ logger.info("Recording...")
 logger.info("Open index.html in your browser")
 
 try:
-    # Основной процесс
+    # Main process
     while True:
         time.sleep(1)
 
 except KeyboardInterrupt:
     logger.error("All processes is closing...")
 
-    # Завершаем все дочерние процессы
+    # Terminate all child processes
     p1.terminate()
     p2.terminate()
     p3.terminate()
 
-    # Ждем завершения всех программ
+   
     p1.wait()
     p2.wait()
     p3.wait()
