@@ -19,6 +19,7 @@ def log_error(process, log_func):
     process.stderr.close()
 
 transcribe_model = "poetry run python transcriber_service.py"
+logger.info("Model loading...")
 p1 = run_program(transcribe_model)
 
 # Запуск потоков для логирования вывода
@@ -27,7 +28,7 @@ threading.Thread(target=log_error, args=(p1, logger.error)).start()
 
 # Ожидание 2 минуты для загрузки модели
 time.sleep(120)
-logger.info("Модель загружена, запускаем сервисы...")
+logger.info("Model loaded, services running...")
 
 assistant = "poetry run python assistant_service.py"
 fastapi = "poetry run python fastapi_service.py"
@@ -35,18 +36,18 @@ audio_service = "poetry run python recorder_service.py"
 p2 = run_program(fastapi)
 threading.Thread(target=log_output, args=(p2, logger.info)).start()
 threading.Thread(target=log_error, args=(p2, logger.error)).start()
-logger.info("Fastapi сервис запущен...")
+logger.info("Fastapi running...")
 
 p3 = run_program(assistant)
 threading.Thread(target=log_output, args=(p3, logger.info)).start()
 threading.Thread(target=log_error, args=(p3, logger.error)).start()
-logger.info("Ассистент запущен...")
+logger.info("AI assistant running...")
 
 p4 = run_program(audio_service)
 threading.Thread(target=log_output, args=(p4, logger.info)).start()
 threading.Thread(target=log_error, args=(p4, logger.error)).start()
-logger.info("Запись...")
-logger.info("Откройте браузером файл index.html")
+logger.info("Recording...")
+logger.info("Open index.html in your browser")
 
 try:
     # Основной процесс
@@ -54,7 +55,7 @@ try:
         time.sleep(1)
 
 except KeyboardInterrupt:
-    logger.error("Завершение программ...")
+    logger.error("All processes is closing...")
 
     # Завершаем все дочерние процессы
     p1.terminate()
@@ -66,5 +67,5 @@ except KeyboardInterrupt:
     p2.wait()
     p3.wait()
 
-    logger.info("Все процессы завершены.")
+    logger.info("Bye!")
     sys.exit(0)
