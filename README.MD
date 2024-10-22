@@ -23,7 +23,7 @@ poetry install
 ```
 
 ## Usage
-1. Âownload and install from https://vb-audio.com/Cable/ VB-CABLE Driver  
+1. Download and install from https://vb-audio.com/Cable/ VB-CABLE Driver  
  for recording interviews
 2. Download the Vosk model:
 - Visit https://alphacephei.com/vosk/models and download the model for your desired language.
@@ -44,7 +44,8 @@ poetry install
 </code></pre>
 ```
 
-5. Start the code by ```bash
+5. Start the code by:  
+ ```bash
 poetry run python main.py
 ```
 6. Open with browser index.html file when it would be printed in the console
