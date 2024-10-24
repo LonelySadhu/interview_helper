@@ -62,7 +62,6 @@ except KeyboardInterrupt:
     p2.terminate()
     p3.terminate()
 
-   
     p1.wait()
     p2.wait()
     p3.wait()

@@ -52,10 +52,17 @@ async def process_new_file(file_path: Path):
 
 # Asynchronous function for sending a request to the assistant and receiving a response
 async def get_assistant_response(user_input: str) -> str:
-    thread, run = create_thread_and_run(user_input)  
-    run = wait_on_run(run, thread)  
-    response = get_response(thread)  
-    return format_response(response)
+    try:
+        thread, run = create_thread_and_run(user_input)
+        run = wait_on_run(run, thread)
+        response = get_response(thread)
+        return format_response(response)
+    except openai.error.OpenAIError as e:
+        logger.error(f"OpenAI API Error: {e}")
+        return "An error occurred while processing your request."
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return "An unexpected error occurred."
 
 def submit_message(assistant_id, thread, user_message):
     client.beta.threads.messages.create(
@@ -67,19 +74,29 @@ def submit_message(assistant_id, thread, user_message):
     )
 
 def get_response(thread):
-    return client.beta.threads.messages.list(thread_id=thread.id, order="asc")
+    messages = client.beta.threads.messages.list(thread_id=thread.id, order="asc")
+    
+    if not messages:
+        raise ValueError(f"No messages found for thread {thread.id}")
+    
+    return messages
 
 def create_thread_and_run(user_input):
-    thread = client.beta.threads.create()  
-    run = submit_message(assistant_id, thread, user_input)  
+    thread = client.beta.threads.create()
+    logger.info(f"Thread created with ID: {thread.id}")
+    
+    if not thread or not thread.id:
+        raise ValueError("Thread was not created successfully.")
+    
+    run = submit_message(assistant_id, thread, user_input)
+    logger.info(f"Run started for thread {thread.id} with run ID: {run.id}")
+    
     return thread, run
 
 def wait_on_run(run, thread):
-    while run.status == "queued" or run.status == "in_progress":
-        run = client.beta.threads.runs.retrieve(
-            thread_id=thread.id,
-            run_id=run.id,
-        )
+    while run.status in ["queued", "in_progress"]:
+        logger.info(f"Run status for thread {thread.id}: {run.status}")
+        run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
         time.sleep(0.5)  
     return run
 
